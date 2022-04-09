@@ -23,8 +23,11 @@ JuliaDB provides distributed table and array datastructures with convenient func
 ## Quickstart
 
 ```julia
-using Pkg
-Pkg.add("JuliaDB")
+# In REPL
+]add https://github.com/Heptazhou/JuliaDB.jl
+
+# Otherwise
+using Pkg; Pkg.add("https://github.com/Heptazhou/JuliaDB.jl")
 
 using JuliaDB
 

@@ -1,12 +1,11 @@
-using Documenter, JuliaDB, IndexedTables
+using Documenter, IndexedTables, JuliaDB
 
 @info "makedocs"
 makedocs(
-   clean = true,
-   debug = true,
-   format = Documenter.HTML(),
-   sitename = "JuliaDB.jl",
-   pages = [
+    sitename = "JuliaDB",
+    format = Documenter.HTML(prettyurls = get(ENV, "CI", nothing) == "true"),
+    modules = [JuliaDB],
+    pages = [
         "index.md",
         "basics.md",
         "operations.md",
@@ -18,10 +17,13 @@ makedocs(
         "ml.md",
         "tutorial.md",
         "api.md",
-   ]
+    ],
 )
 
 @info "deploydocs"
 deploydocs(
-    repo = "github.com/JuliaComputing/JuliaDB.jl.git"
+    repo = "github.com/Heptazhou/JuliaDB.jl.git",
+    devbranch = "master",
+    devurl = "latest",
+    forcepush = true,
 )

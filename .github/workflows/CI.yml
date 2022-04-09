@@ -2,42 +2,46 @@ name: CI
 on:
   pull_request:
     branches:
-      - master
+      - "master"
   push:
     branches:
-      - master
-    tags: '*'
+      - "master"
+    tags:
+      - "*"
+defaults:
+  run:
+    shell: bash
 jobs:
   test:
-    name: Julia ${{ matrix.version }} - ${{ matrix.os }} - ${{ matrix.arch }} - ${{ github.event_name }}
     runs-on: ${{ matrix.os }}
+    timeout-minutes: 90
     strategy:
       fail-fast: false
       matrix:
-        version:
-          - '1.0'
-          - '1' # automatically expands to the latest stable 1.x release of Julia
-          - 'nightly'
         os:
           - ubuntu-latest
-        arch:
-          - x64
+        julia-version:
+          - "1.6"
+          - "1"
+          - "nightly"
         include:
-          - os: windows-latest
-            version: '1'
-            arch: x86
+          - os: macos-latest
+            julia-version: "1"
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
+        with:
+          persist-credentials: false
       - uses: julia-actions/setup-julia@v1
         with:
-          version: ${{ matrix.version }}
-          arch: ${{ matrix.arch }}
-      - uses: actions/cache@v1
+          show-versioninfo: true
+          version: ${{ matrix.julia-version }}
+      - uses: actions/cache@v3
         env:
           cache-name: cache-artifacts
         with:
           path: ~/.julia/artifacts
-          key: ${{ runner.os }}-test-${{ env.cache-name }}-${{ hashFiles('**/Project.toml') }}
+          key: >
+            ${{ runner.os }}-test-${{ env.cache-name }}-${{ hashFiles('**/Project.toml') }}
           restore-keys: |
             ${{ runner.os }}-test-${{ env.cache-name }}-
             ${{ runner.os }}-test-
@@ -45,23 +49,27 @@ jobs:
       - uses: julia-actions/julia-buildpkg@v1
       - uses: julia-actions/julia-runtest@v1
       - uses: julia-actions/julia-processcoverage@v1
-      - uses: codecov/codecov-action@v1
+      - uses: codecov/codecov-action@v2
         with:
           file: lcov.info
   docs:
-    name: Documentation
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 30
+    strategy:
+      matrix:
+        os:
+          - ubuntu-latest
+        julia-version:
+          - "1"
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
+        with:
+          persist-credentials: false
       - uses: julia-actions/setup-julia@v1
         with:
-          version: '1'
-      - run: |
-          julia --project=docs -e '
-            using Pkg
-            Pkg.develop(PackageSpec(path=pwd()))
-            Pkg.instantiate()'
-      - run: julia --project=docs docs/make.jl
+          show-versioninfo: true
+          version: ${{ matrix.julia-version }}
+      - uses: julia-actions/julia-docdeploy@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           DOCUMENTER_KEY: ${{ secrets.DOCUMENTER_KEY }}

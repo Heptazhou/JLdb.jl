@@ -17,7 +17,10 @@ import Dagger: compute, distribute, load, save, DomainBlocks, ArrayDomain, DArra
     chunktype, tochunk, distribute, Context, treereduce, dsort_chunks
 import Serialization: serialize, deserialize
 import MemPool: mmwrite, mmread, MMSer, approx_size
- 
+
+import IndexedTables: _ismissing, missing_indxs
+missing_indxs(v::AbstractVector) = findall(!_ismissing, v)
+
 using IndexedTables, Dagger, OnlineStats, Distributed, Serialization, Nullables, Printf, 
     Statistics, PooledArrays, WeakRefStrings, MemPool, StatsBase, OnlineStatsBase,
     DataValues, RecipesBase, TextParse, Glob

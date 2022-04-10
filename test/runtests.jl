@@ -15,7 +15,9 @@ include("test_query.jl")
 include("test_join.jl")
 include("test_misc.jl")
 include("test_rechunk.jl")
+@static Sys.WORD_SIZE == 32 ||
 include("test_readwrite.jl")
 include("test_onlinestats.jl")
 include("test_ml.jl")
+@static Sys.WORD_SIZE == 32 ||
 include("test_weakrefstrings.jl")

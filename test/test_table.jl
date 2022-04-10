@@ -84,7 +84,7 @@ import JuliaDB: pkeynames, pkeys, excludecols, select, transform
     t2 = transform(t, :t => [0.1, 0.05])
     @test t2 == table([0.05, 0.1], [2,1], [4,3], names=[:t,:x,:y])
     t = table([0.01, 0.05], [2, 1], [3, 4], names=[:t, :x, :y], pkey=:t, chunks=2)
-    @test transform(t, :z => [1 // 2, 3 // 4]) == table([0.01, 0.05], [2, 1], [3, 4], Rational{Int64}[1//2, 3//4], names=Symbol[:t, :x, :y, :z])
+    @test transform(t, :z => [1 // 2, 3 // 4]) == table([0.01, 0.05], [2, 1], [3, 4], Rational{Int}[1//2, 3//4], names=Symbol[:t, :x, :y, :z])
     t = table([0.01, 0.05], [2, 1], [3, 4], names=[:t, :x, :y], pkey=:t, chunks=2)
     @test select(t, Not(:x)) == table([0.01, 0.05], [3, 4], names=Symbol[:t, :y])
     t = table([0.01, 0.05], [2, 1], [3, 4], names=[:t, :x, :y], pkey=:t, chunks=2)

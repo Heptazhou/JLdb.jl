@@ -15,6 +15,11 @@ or jump into the documentation [here](https://www.heptazhou.com/JLdb.jl/latest/)
 """
 module JuliaDB
 
+@static if Sys.WORD_SIZE == 32
+    import Base.Threads: Threads
+    Threads.atomic_add!(x::Base.Threads.Atomic{UInt64}, v::UInt32) = Threads.atomic_add!(x, UInt64(v))
+end
+
 import Base: collect, join, keys, values, iterate, broadcast, merge, reduce, mapslices, 
     ==
 import Base.Broadcast: broadcasted

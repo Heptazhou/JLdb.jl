@@ -8,7 +8,7 @@ function files_from_dir(dir)
 end
 
 function format_bytes(nb)
-    bytes, mb = Base.prettyprint_getunits(nb, length(Base._mem_units), Int64(1024))
+    bytes, mb = Base.prettyprint_getunits(nb, length(Base._mem_units), Int(1024))
     if mb == 1
         @sprintf("%d %s%s", bytes, Base._mem_units[mb], bytes==1 ? "" : "s")
     else

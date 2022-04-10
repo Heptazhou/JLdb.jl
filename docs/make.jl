@@ -2,7 +2,7 @@ using Documenter, IndexedTables, JuliaDB
 
 @info "makedocs"
 makedocs(
-    sitename = "JuliaDB",
+    sitename = "JLdb",
     format = Documenter.HTML(prettyurls = get(ENV, "CI", nothing) == "true"),
     modules = [JuliaDB],
     pages = [
@@ -22,7 +22,7 @@ makedocs(
 
 @info "deploydocs"
 deploydocs(
-    repo = "github.com/Heptazhou/JuliaDB.jl.git",
+    repo = "github.com/Heptazhou/JLdb.jl.git",
     devbranch = "master",
     devurl = "latest",
     forcepush = true,

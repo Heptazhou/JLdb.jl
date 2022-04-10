@@ -1,3 +1,18 @@
+"""
+    JuliaDB
+
+JuliaDB is a package for working with large persistent data sets.
+
+JuliaDB is an all-Julia, end-to-end tool that can
+
+- Load multi-dimensional datasets quickly and incrementally
+- Index the data and perform filter, aggregate, sort, and join operations
+- Save results and load them efficiently later
+- Use Julia's built-in parallelism to fully utilize any machine or cluster
+
+Introduce yourself to JuliaDB's features at [juliadb.org](https://juliadb.org/)
+or jump into the documentation [here](https://www.heptazhou.com/JLdb.jl/latest/)!
+"""
 module JuliaDB
 
 import Base: collect, join, keys, values, iterate, broadcast, merge, reduce, mapslices, 

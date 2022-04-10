@@ -24,10 +24,10 @@ JuliaDB provides distributed table and array datastructures with convenient func
 
 ```julia
 # In REPL
-]add https://github.com/Heptazhou/JuliaDB.jl
+]add https://github.com/Heptazhou/jldb.jl#stable
 
 # Otherwise
-using Pkg; Pkg.add("https://github.com/Heptazhou/JuliaDB.jl")
+using Pkg; Pkg.add(url="https://github.com/Heptazhou/jldb.jl", rev="stable")
 
 using JuliaDB
 

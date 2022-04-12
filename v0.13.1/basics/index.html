@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><title>Basics · JLdb</title><script data-outdated-warner src="../assets/warner.js"></script><link href="https://cdnjs.cloudflare.com/ajax/libs/lato-font/3.0.0/css/lato-font.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/juliamono/0.039/juliamono-regular.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/fontawesome.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/solid.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/brands.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.13.11/katex.min.css" rel="stylesheet" type="text/css"/><script>documenterBaseURL=".."</script><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" data-main="../assets/documenter.js"></script><script src="../siteinfo.js"></script><script src="../../versions.js"></script><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../assets/themes/documenter-dark.css" data-theme-name="documenter-dark" data-theme-primary-dark/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../assets/themes/documenter-light.css" data-theme-name="documenter-light" data-theme-primary/><script src="../assets/themeswap.js"></script></head><body><div id="documenter"><nav class="docs-sidebar"><div class="docs-package-name"><span class="docs-autofit"><a href="../">JLdb</a></span></div><form class="docs-search" action="../search/"><input class="docs-search-query" id="documenter-search-query" name="q" type="text" placeholder="Search docs"/></form><ul class="docs-menu"><li><a class="tocitem" href="../">Overview</a></li><li class="is-active"><a class="tocitem" href>Basics</a><ul class="internal"><li><a class="tocitem" href="#[IndexedTable](@ref)"><span><code>IndexedTable</code></span></a></li><li><a class="tocitem" href="#[NDSparse](@ref)"><span><code>NDSparse</code></span></a></li><li><a class="tocitem" href="#Selectors"><span>Selectors</span></a></li><li><a class="tocitem" href="#Loading-and-Saving"><span>Loading and Saving</span></a></li></ul></li><li><a class="tocitem" href="../operations/">Table Operations</a></li><li><a class="tocitem" href="../joins/">Joins</a></li><li><a class="tocitem" href="../onlinestats/">OnlineStats Integration</a></li><li><a class="tocitem" href="../plotting/">Plotting</a></li><li><a class="tocitem" href="../missing_values/">Missing Values</a></li><li><a class="tocitem" href="../out_of_core/">Out-of-core processing</a></li><li><a class="tocitem" href="../ml/">Feature Extraction</a></li><li><a class="tocitem" href="../tutorial/">Tutorial</a></li><li><a class="tocitem" href="../api/">API</a></li></ul><div class="docs-version-selector field has-addons"><div class="control"><span class="docs-label button is-static is-size-7">Version</span></div><div class="docs-selector control is-expanded"><div class="select is-fullwidth is-size-7"><select id="documenter-version-selector"></select></div></div></div></nav><div class="docs-main"><header class="docs-navbar"><nav class="breadcrumb"><ul class="is-hidden-mobile"><li class="is-active"><a href>Basics</a></li></ul><ul class="is-hidden-tablet"><li class="is-active"><a href>Basics</a></li></ul></nav><div class="docs-right"><a class="docs-edit-link" href="https://github.com/Heptazhou/JLdb.jl/blob/master/docs/src/basics.md" title="Edit on GitHub"><span class="docs-icon fab"></span><span class="docs-label is-hidden-touch">Edit on GitHub</span></a><a class="docs-settings-button fas fa-cog" id="documenter-settings-button" href="#" title="Settings"></a><a class="docs-sidebar-button fa fa-bars is-hidden-desktop" id="documenter-sidebar-button" href="#"></a></div></header><article class="content" id="documenter-page"><h1 id="Basics"><a class="docs-heading-anchor" href="#Basics">Basics</a><a id="Basics-1"></a><a class="docs-heading-anchor-permalink" href="#Basics" title="Permalink"></a></h1><p>JuliaDB offers two main data structures as well as distributed counterparts.  This allows you to easily scale up an analysis, as operations that work on non-distributed tables  either work out of the box or are easy to transition for distributed tables.</p><p>Here is a high level overview of tables in JuliaDB:</p><ul><li>Tables store data in <strong>columns</strong>.</li><li>Tables are typed.<ul><li>Changing a table in some way therefore requires returning a <strong>new</strong> table (underlying data is not copied).</li><li>JuliaDB has few mutating operations because a new table is necessary in most cases.</li></ul></li></ul><h3 id="Data-for-examples:"><a class="docs-heading-anchor" href="#Data-for-examples:">Data for examples:</a><a id="Data-for-examples:-1"></a><a class="docs-heading-anchor-permalink" href="#Data-for-examples:" title="Permalink"></a></h3><pre><code class="language-julia hljs">x = 1:10
+y = vcat(fill(&#39;a&#39;, 4), fill(&#39;b&#39;, 6))
+z = randn(10);</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">10-element Vector{Float64}:
+ -0.10159561356279523
+ -1.0497669443355508
+  0.1387817536928029
+  1.3656003856430101
+  1.2117421702412088
+ -0.24526010252898056
+ -0.9121230433477152
+  1.9997213420959465
+ -0.1390732680297047
+ -1.4708041785695336</code></pre><h2 id="[IndexedTable](@ref)"><a class="docs-heading-anchor" href="#[IndexedTable](@ref)"><a href="../api/#IndexedTables.IndexedTable"><code>IndexedTable</code></a></a><a id="[IndexedTable](@ref)-1"></a><a class="docs-heading-anchor-permalink" href="#[IndexedTable](@ref)" title="Permalink"></a></h2><p>An <a href="../api/#IndexedTables.IndexedTable"><code>IndexedTable</code></a> is wrapper around a (named) tuple of Vectors, but it behaves like a Vector of (named) tuples.  You can choose to sort the table by any number of primary  keys (in this case columns <code>:x</code> and <code>:y</code>).</p><p>An <code>IndexedTable</code> is created with data in Julia via the <a href="../api/#IndexedTables.table"><code>table</code></a> function or with  data on disk via the <a href="../api/#JuliaDB.loadtable-Tuple{Union{String, AbstractVector}}"><code>loadtable</code></a> function.</p><pre><code class="language-julia-repl hljs" style="display:block;">julia&gt; t = table((x=x, y=y, z=z); pkey = [:x, :y])</code><code class="nohighlight hljs ansi" style="display:block;">Table with 10 rows, 3 columns:
+x   y    z
+──────────────────
+1   &#39;a&#39;  -0.101596
+2   &#39;a&#39;  -1.04977
+3   &#39;a&#39;  0.138782
+4   &#39;a&#39;  1.3656
+5   &#39;b&#39;  1.21174
+6   &#39;b&#39;  -0.24526
+7   &#39;b&#39;  -0.912123
+8   &#39;b&#39;  1.99972
+9   &#39;b&#39;  -0.139073
+10  &#39;b&#39;  -1.4708</code><br/><code class="language-julia-repl hljs" style="display:block;">julia&gt; t[1]</code><code class="nohighlight hljs ansi" style="display:block;">(x = 1, y = &#39;a&#39;, z = -0.10159561356279523)</code><br/><code class="language-julia-repl hljs" style="display:block;">julia&gt; t[end]</code><code class="nohighlight hljs ansi" style="display:block;">(x = 10, y = &#39;b&#39;, z = -1.4708041785695336)</code></pre><h2 id="[NDSparse](@ref)"><a class="docs-heading-anchor" href="#[NDSparse](@ref)"><a href="../api/#IndexedTables.NDSparse-Tuple"><code>NDSparse</code></a></a><a id="[NDSparse](@ref)-1"></a><a class="docs-heading-anchor-permalink" href="#[NDSparse](@ref)" title="Permalink"></a></h2><p>An <a href="../api/#IndexedTables.NDSparse-Tuple"><code>NDSparse</code></a> has a similar underlying structure to <a href="../api/#IndexedTables.IndexedTable"><code>IndexedTable</code></a>, but it behaves like a sparse array with arbitrary indices.  The keys of an <code>NDSparse</code> are sorted, much like the primary keys of an <code>IndexedTable</code>.</p><p>An <code>NDSparse</code> is created with data in Julia via the <a href="../api/#IndexedTables.ndsparse"><code>ndsparse</code></a> function or with  data on disk via the <a href="../api/#JuliaDB.loadndsparse-Tuple{Union{String, AbstractVector}}"><code>loadndsparse</code></a> function.</p><pre><code class="language-julia-repl hljs" style="display:block;">julia&gt; nd = ndsparse((x=x, y=y), (z=z,))</code><code class="nohighlight hljs ansi" style="display:block;">2-d NDSparse with 10 values (1 field named tuples):
+x   y   │ z
+────────┼──────────
+1   &#39;a&#39; │ -0.101596
+2   &#39;a&#39; │ -1.04977
+3   &#39;a&#39; │ 0.138782
+4   &#39;a&#39; │ 1.3656
+5   &#39;b&#39; │ 1.21174
+6   &#39;b&#39; │ -0.24526
+7   &#39;b&#39; │ -0.912123
+8   &#39;b&#39; │ 1.99972
+9   &#39;b&#39; │ -0.139073
+10  &#39;b&#39; │ -1.4708</code><br/><code class="language-julia-repl hljs" style="display:block;">julia&gt; nd[1, &#39;a&#39;]</code><code class="nohighlight hljs ansi" style="display:block;">(z = -0.10159561356279523,)</code><br/><code class="language-julia-repl hljs" style="display:block;">julia&gt; nd[10, &#39;j&#39;].z</code><code class="nohighlight hljs ansi" style="display:block;">ERROR: KeyError: key (10, &#39;j&#39;) not found</code><br/><code class="language-julia-repl hljs" style="display:block;">julia&gt; nd[1, :]</code><code class="nohighlight hljs ansi" style="display:block;">1-d NDSparse with 1 values (1 field named tuples):
+y   │ z
+────┼──────────
+&#39;a&#39; │ -0.101596</code></pre><h2 id="Selectors"><a class="docs-heading-anchor" href="#Selectors">Selectors</a><a id="Selectors-1"></a><a class="docs-heading-anchor-permalink" href="#Selectors" title="Permalink"></a></h2><p>JuliaDB has a variety of ways to select columns.  These selection methods get used across many JuliaDB&#39;s functions: <a href="../api/#IndexedTables.select-Tuple{IndexedTables.AbstractIndexedTable, Any}"><code>select</code></a>, <a href="../api/#Base.reduce-Tuple{Any, IndexedTable}"><code>reduce</code></a>, <a href="../api/#IndexedTables.groupreduce"><code>groupreduce</code></a>,  <a href="../api/#IndexedTables.groupby"><code>groupby</code></a>, <a href="../api/#Base.join-Tuple{Any, Union{IndexedTable, NDSparse}, Union{IndexedTable, NDSparse}}"><code>join</code></a>, <a href="../api/#StatsBase.transform-Tuple{Any, Vararg{Any}}"><code>transform</code></a>, <a href="../api/#IndexedTables.reindex"><code>reindex</code></a>, and more.</p><p>To demonstrate selection, we&#39;ll use the <a href="../api/#IndexedTables.select-Tuple{IndexedTables.AbstractIndexedTable, Any}"><code>select</code></a> function.  A selection can be any of the following types:</p><ol><li><code>Integer</code> – returns the column at this position.</li><li><code>Symbol</code> – returns the column with this name.</li><li><code>Pair{Selection =&gt; Function}</code> – selects and maps a function over the selection, returns the result.</li><li><code>AbstractArray</code> – returns the array itself. This must be the same length as the table.</li><li><code>Tuple</code> of <code>Selection</code> – returns a table containing a column for every selector in the tuple.</li><li><code>Regex</code> – returns the columns with names that match the regular expression.</li><li><code>Type</code> – returns columns with elements of the given type.</li><li><code>Not(Selection)</code> – returns columns that are not included in the selection.</li><li><code>Between(first, last)</code> – returns columns between <code>first</code> and <code>last</code>.</li><li><code>Keys()</code> – return the primary key columns.</li></ol><pre><code class="language-julia hljs">t = table(1:10, randn(10), rand(Bool, 10); names = [:x, :y, :z])</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">Table with 10 rows, 3 columns:
+x   y          z
+────────────────────
+1   0.851627   true
+2   0.103969   false
+3   0.39099    true
+4   1.38581    false
+5   -0.785436  false
+6   -0.533566  true
+7   -0.280398  false
+8   -0.534114  true
+9   1.29287    false
+10  0.913551   true</code></pre><h4 id="select-the-:x-vector"><a class="docs-heading-anchor" href="#select-the-:x-vector">select the :x vector</a><a id="select-the-:x-vector-1"></a><a class="docs-heading-anchor-permalink" href="#select-the-:x-vector" title="Permalink"></a></h4><pre><code class="language-julia-repl hljs" style="display:block;">julia&gt; select(t, 1)</code><code class="nohighlight hljs ansi" style="display:block;">10-element Vector{Int64}:
+  1
+  2
+  3
+  4
+  5
+  6
+  7
+  8
+  9
+ 10</code><br/><code class="language-julia-repl hljs" style="display:block;">julia&gt; select(t, :x)</code><code class="nohighlight hljs ansi" style="display:block;">10-element Vector{Int64}:
+  1
+  2
+  3
+  4
+  5
+  6
+  7
+  8
+  9
+ 10</code></pre><h4 id="map-a-function-to-the-:y-vector"><a class="docs-heading-anchor" href="#map-a-function-to-the-:y-vector">map a function to the :y vector</a><a id="map-a-function-to-the-:y-vector-1"></a><a class="docs-heading-anchor-permalink" href="#map-a-function-to-the-:y-vector" title="Permalink"></a></h4><pre><code class="language-julia-repl hljs" style="display:block;">julia&gt; select(t, 2 =&gt; abs)</code><code class="nohighlight hljs ansi" style="display:block;">10-element Vector{Float64}:
+ 0.8516274757005192
+ 0.10396917553070863
+ 0.3909902528311987
+ 1.3858137585208943
+ 0.7854356796301191
+ 0.5335662167458792
+ 0.28039802806173053
+ 0.5341137332818543
+ 1.2928674005903655
+ 0.9135514878002643</code><br/><code class="language-julia-repl hljs" style="display:block;">julia&gt; select(t, :y =&gt; x -&gt; x &gt; 0 ? x : -x)</code><code class="nohighlight hljs ansi" style="display:block;">10-element Vector{Float64}:
+ 0.8516274757005192
+ 0.10396917553070863
+ 0.3909902528311987
+ 1.3858137585208943
+ 0.7854356796301191
+ 0.5335662167458792
+ 0.28039802806173053
+ 0.5341137332818543
+ 1.2928674005903655
+ 0.9135514878002643</code></pre><h4 id="select-the-table-of-:x-and-:z"><a class="docs-heading-anchor" href="#select-the-table-of-:x-and-:z">select the table of :x and :z</a><a id="select-the-table-of-:x-and-:z-1"></a><a class="docs-heading-anchor-permalink" href="#select-the-table-of-:x-and-:z" title="Permalink"></a></h4><pre><code class="language-julia-repl hljs" style="display:block;">julia&gt; select(t, (:x, :z))</code><code class="nohighlight hljs ansi" style="display:block;">Table with 10 rows, 2 columns:
+x   z
+─────────
+1   true
+2   false
+3   true
+4   false
+5   false
+6   true
+7   false
+8   true
+9   false
+10  true</code><br/><code class="language-julia-repl hljs" style="display:block;">julia&gt; select(t, r&quot;(x|z)&quot;)</code><code class="nohighlight hljs ansi" style="display:block;">Table with 10 rows, 2 columns:
+x   z
+─────────
+1   true
+2   false
+3   true
+4   false
+5   false
+6   true
+7   false
+8   true
+9   false
+10  true</code></pre><h4 id="map-a-function-to-the-table-of-:x-and-:y"><a class="docs-heading-anchor" href="#map-a-function-to-the-table-of-:x-and-:y">map a function to the table of :x and :y</a><a id="map-a-function-to-the-table-of-:x-and-:y-1"></a><a class="docs-heading-anchor-permalink" href="#map-a-function-to-the-table-of-:x-and-:y" title="Permalink"></a></h4><pre><code class="language-julia-repl hljs" style="display:block;">julia&gt; select(t, (:x, :y) =&gt; row -&gt; row[1] + row[2])</code><code class="nohighlight hljs ansi" style="display:block;">10-element Vector{Float64}:
+  1.851627475700519
+  2.103969175530709
+  3.3909902528311986
+  5.385813758520895
+  4.214564320369881
+  5.4664337832541205
+  6.719601971938269
+  7.465886266718146
+ 10.292867400590366
+ 10.913551487800264</code><br/><code class="language-julia-repl hljs" style="display:block;">julia&gt; select(t, (1, :y) =&gt; row -&gt; row.x + row.y)</code><code class="nohighlight hljs ansi" style="display:block;">10-element Vector{Float64}:
+  1.851627475700519
+  2.103969175530709
+  3.3909902528311986
+  5.385813758520895
+  4.214564320369881
+  5.4664337832541205
+  6.719601971938269
+  7.465886266718146
+ 10.292867400590366
+ 10.913551487800264</code></pre><h4 id="select-columns-that-are-subtypes-of-Integer"><a class="docs-heading-anchor" href="#select-columns-that-are-subtypes-of-Integer">select columns that are subtypes of Integer</a><a id="select-columns-that-are-subtypes-of-Integer-1"></a><a class="docs-heading-anchor-permalink" href="#select-columns-that-are-subtypes-of-Integer" title="Permalink"></a></h4><pre><code class="language-julia-repl hljs" style="display:block;">julia&gt; select(t, Integer)</code><code class="nohighlight hljs ansi" style="display:block;">Table with 10 rows, 2 columns:
+x   z
+─────────
+1   true
+2   false
+3   true
+4   false
+5   false
+6   true
+7   false
+8   true
+9   false
+10  true</code></pre><h4 id="select-columns-that-are-not-subtypes-of-Integer"><a class="docs-heading-anchor" href="#select-columns-that-are-not-subtypes-of-Integer">select columns that are not subtypes of Integer</a><a id="select-columns-that-are-not-subtypes-of-Integer-1"></a><a class="docs-heading-anchor-permalink" href="#select-columns-that-are-not-subtypes-of-Integer" title="Permalink"></a></h4><pre><code class="language-julia-repl hljs" style="display:block;">julia&gt; select(t, Not(Integer))</code><code class="nohighlight hljs ansi" style="display:block;">Table with 10 rows, 1 columns:
+y
+─────────
+0.851627
+0.103969
+0.39099
+1.38581
+-0.785436
+-0.533566
+-0.280398
+-0.534114
+1.29287
+0.913551</code></pre><h2 id="Loading-and-Saving"><a class="docs-heading-anchor" href="#Loading-and-Saving">Loading and Saving</a><a id="Loading-and-Saving-1"></a><a class="docs-heading-anchor-permalink" href="#Loading-and-Saving" title="Permalink"></a></h2><h3 id="Loading-Data-From-CSV"><a class="docs-heading-anchor" href="#Loading-Data-From-CSV">Loading Data From CSV</a><a id="Loading-Data-From-CSV-1"></a><a class="docs-heading-anchor-permalink" href="#Loading-Data-From-CSV" title="Permalink"></a></h3><p>Loading a CSV file (or multiple files) into one of JuliaDB&#39;s tabular data structures is accomplished via the <a href="../api/#JuliaDB.loadtable-Tuple{Union{String, AbstractVector}}"><code>loadtable</code></a> and <a href="../api/#JuliaDB.loadndsparse-Tuple{Union{String, AbstractVector}}"><code>loadndsparse</code></a> functions.  </p><pre><code class="language-julia hljs">using JuliaDB, DelimitedFiles
+
+x = rand(10, 2)
+writedlm(&quot;temp.csv&quot;, x, &#39;,&#39;)
+
+t = loadtable(&quot;temp.csv&quot;)</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">Table with 9 rows, 2 columns:
+0.44472015615101446  0.34463697772446045
+────────────────────────────────────────
+0.994759             0.116042
+0.297038             0.213936
+0.922352             0.819499
+0.199009             0.811964
+0.73828              0.243236
+0.250093             0.591472
+0.933499             0.70859
+0.554243             0.859971
+0.126187             0.975411</code></pre><div class="admonition is-info"><header class="admonition-header">Note</header><div class="admonition-body"><p><code>loadtable</code> and <code>loadndsparse</code> use <code>Missing</code> to represent missing values.  To load a CSV that instead uses <code>DataValue</code>, see <a href="https://github.com/queryverse/CSVFiles.jl">CSVFiles.jl</a>.  For more information on missing value representations, see <a href="../missing_values/#Missing-Values">Missing Values</a>.</p></div></div><h3 id="Converting-From-Other-Data-Structures"><a class="docs-heading-anchor" href="#Converting-From-Other-Data-Structures">Converting From Other Data Structures</a><a id="Converting-From-Other-Data-Structures-1"></a><a class="docs-heading-anchor-permalink" href="#Converting-From-Other-Data-Structures" title="Permalink"></a></h3><pre><code class="language-julia hljs">using JuliaDB, RDatasets
+
+df = dataset(&quot;datasets&quot;, &quot;iris&quot;)  # load data as DataFrame
+
+table(df)  # Convert DataFrame to IndexedTable</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">Table with 150 rows, 5 columns:
+SepalLength  SepalWidth  PetalLength  PetalWidth  Species
+─────────────────────────────────────────────────────────────
+5.1          3.5         1.4          0.2         &quot;setosa&quot;
+4.9          3.0         1.4          0.2         &quot;setosa&quot;
+4.7          3.2         1.3          0.2         &quot;setosa&quot;
+4.6          3.1         1.5          0.2         &quot;setosa&quot;
+5.0          3.6         1.4          0.2         &quot;setosa&quot;
+5.4          3.9         1.7          0.4         &quot;setosa&quot;
+4.6          3.4         1.4          0.3         &quot;setosa&quot;
+5.0          3.4         1.5          0.2         &quot;setosa&quot;
+4.4          2.9         1.4          0.2         &quot;setosa&quot;
+⋮
+5.8          2.7         5.1          1.9         &quot;virginica&quot;
+6.8          3.2         5.9          2.3         &quot;virginica&quot;
+6.7          3.3         5.7          2.5         &quot;virginica&quot;
+6.7          3.0         5.2          2.3         &quot;virginica&quot;
+6.3          2.5         5.0          1.9         &quot;virginica&quot;
+6.5          3.0         5.2          2.0         &quot;virginica&quot;
+6.2          3.4         5.4          2.3         &quot;virginica&quot;
+5.9          3.0         5.1          1.8         &quot;virginica&quot;</code></pre><h3 id="Save-Table-into-Binary-Format"><a class="docs-heading-anchor" href="#Save-Table-into-Binary-Format">Save Table into Binary Format</a><a id="Save-Table-into-Binary-Format-1"></a><a class="docs-heading-anchor-permalink" href="#Save-Table-into-Binary-Format" title="Permalink"></a></h3><p>A table can be saved to disk (for fast, efficient reloading) via the <a href="../api/#Dagger.save-Tuple{Union{IndexedTable, NDSparse}, AbstractString}"><code>save</code></a> function.</p><h3 id="Load-Table-from-Binary-Format"><a class="docs-heading-anchor" href="#Load-Table-from-Binary-Format">Load Table from Binary Format</a><a id="Load-Table-from-Binary-Format-1"></a><a class="docs-heading-anchor-permalink" href="#Load-Table-from-Binary-Format" title="Permalink"></a></h3><p>Tables that have been <code>save</code>-ed can be loaded efficiently via <a href="../api/#Dagger.load-Tuple{AbstractString}"><code>load</code></a>.</p></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../">« Overview</a><a class="docs-footer-nextpage" href="../operations/">Table Operations »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 0.27.15 on <span class="colophon-date" title="Tuesday 12 April 2022 08:59">Tuesday 12 April 2022</span>. Using Julia version 1.7.2.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
